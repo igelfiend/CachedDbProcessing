@@ -1,6 +1,6 @@
 import unittest
-from data import DataNode
-from data import DataNodeException, DataNodeInstanceException
+from data_node import DataNode
+from data_node import DataNodeException, DataNodeInstanceException
 from copy import deepcopy
 
 
@@ -16,7 +16,7 @@ class TestDataNodeInit(unittest.TestCase):
             self.assertEqual(node.get_value() == node_value, True,
                              "TestInit: test with value case: "
                              "value set incorrectly")
-            self.assertIsNone(node.get_parent(),
+            self.assertIsNone(node.get_parent_id(),
                               "TestInit: test with value case: "
                               "parent must be None")
             self.assertIsNotNone(node.get_id(),
@@ -44,22 +44,22 @@ class TestDataNodeInit(unittest.TestCase):
             node1_child2 = DataNode(node1_child2_value, parent=node1)
             node1_child3 = DataNode(node1_child3_value, parent=node1)
 
-            self.assertIsNone(grand_node.get_parent(),
+            self.assertIsNone(grand_node.get_parent_id(),
                               "TestInit: test with correct parent: "
                               "root node parent must be None")
-            self.assertEqual(node1.get_parent(), grand_node,
+            self.assertEqual(node1.get_parent_id(), grand_node.get_id(),
                              "TestInit: test with correct parent: "
                              "root node must be parent of the node1")
-            self.assertEqual(node2.get_parent(), grand_node,
+            self.assertEqual(node2.get_parent_id(), grand_node.get_id(),
                              "TestInit: test with correct parent: "
                              "root node must be parent of the node2")
-            self.assertEqual(node1_child1.get_parent(), node1,
+            self.assertEqual(node1_child1.get_parent_id(), node1.get_id(),
                              "TestInit: test with correct parent: "
                              "node1 must be parent of the child1")
-            self.assertEqual(node1_child2.get_parent(), node1,
+            self.assertEqual(node1_child2.get_parent_id(), node1.get_id(),
                              "TestInit: test with correct parent: "
                              "node1 must be parent of the child2")
-            self.assertEqual(node1_child2.get_parent(), node1,
+            self.assertEqual(node1_child2.get_parent_id(), node1.get_id(),
                              "TestInit: test with correct parent: "
                              "node1 must be parent of the child3")
         except DataNodeInstanceException:

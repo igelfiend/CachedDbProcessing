@@ -1,11 +1,10 @@
 #!/bin/python
 # -*- coding: utf-8 -*-
 
-from data import DataNode
-from data_serializer import DataNodeEncoder
-from data_serializer import DataNodeDecoder
-
-import uuid
+from data_node import DataNode
+from data_serializer import DataEncoder
+from data_serializer import DataDecoder
+from data_controller import DataNodeController
 
 
 def create_data_sample() -> DataNode:
@@ -27,20 +26,28 @@ def create_data_sample() -> DataNode:
 
 
 def main():
-    encoder = DataNodeEncoder(indent=4)
-    decoder = DataNodeDecoder()
+    encoder = DataEncoder(indent=4)
+    decoder = DataDecoder()
+    controller = DataNodeController()
+
     data = create_data_sample()
 
-    print("initial data struct:")
-    print(repr(data))
+    raw = controller.to_data_list(data)
 
-    json_data = encoder.encode(data)
+    print("initial data struct:")
+    print(repr(raw))
+    #
+    # json_data = encoder.encode(raw)
     # print("jsonned data")
     # print(json_data)
+    #
+    # print("processing backward")
+    # upd_data = decoder.decode(json_data)
+    # print(repr(upd_data))
 
-    print("processing backward")
-    upd_data = decoder.decode(json_data)
-    print(repr(upd_data))
+    print("generate tree")
+    upd_data = controller.create_node_hierarchy(raw)
+    print(repr(upd_data[0]))
 
 
 if __name__ == "__main__":

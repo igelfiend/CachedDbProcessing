@@ -2,35 +2,38 @@
 # -*- coding: utf-8 -*-
 
 import json
-from data import DataNode
+from data import Data
 
 
-class DataNodeEncoder(json.JSONEncoder):
+class DataEncoder(json.JSONEncoder):
+    """
+    Class for encoding Data to JSON format
+    """
     def default(self, value):
-        if isinstance(value, DataNode):
+        if isinstance(value, Data):
             return {
-                "__data_node__": True,
+                "__data__": True,
                 "id": value.get_id(),
                 "value": value.get_value(),
-                "parent": value.get_parent().get_id() if value.get_parent() is not None else None,
-                "children": [self.default(i) for i in value.get_children()],
+                "parent_id": value.get_parent_id()
             }
         else:
             super().default(self. value)
 
 
-class DataNodeDecoder(json.JSONDecoder):
+class DataDecoder(json.JSONDecoder):
+    """
+    Class for decoding Data from JSON format
+    """
     def __init__(self, *args, **kwargs):
         json.JSONDecoder.__init__(self, object_hook=self.object_hook, *args, **kwargs)
 
     def object_hook(self, obj):
-        if "__data_node__" in obj:
-            node = DataNode(obj["value"])
-            node._id = int(obj["id"])
-            node._children = self.object_hook(obj["children"])
-            children = node.get_children()
-            if children:
-                [i.set_parent(node) for i in children]
+        if "__data__" in obj:
+            print("processing data")
+            id_ = int(obj["id"])
+            value = obj["value"]
+            parent_id = int(obj["parent_id"]) if obj["parent_id"] is not None else None
+            return Data(value=value, parent_id=parent_id, id_=id_)
 
-            return node
         return obj
