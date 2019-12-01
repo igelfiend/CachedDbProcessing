@@ -1,2 +1,5 @@
+# Library dependencies for the python code.  You need to install these with
+# 'pip3 install -r requirements.txt' before you can run this.
+
 # For gui used Qt gui module
 PyQt5
