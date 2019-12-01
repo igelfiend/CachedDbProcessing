@@ -15,6 +15,7 @@ class DataEncoder(json.JSONEncoder):
                 "__data__": True,
                 "id": value.get_id(),
                 "value": value.get_value(),
+                "enabled": value.is_enabled(),
                 "parent_id": value.get_parent_id()
             }
         else:
@@ -30,10 +31,10 @@ class DataDecoder(json.JSONDecoder):
 
     def object_hook(self, obj):
         if "__data__" in obj:
-            print("processing data")
             id_ = int(obj["id"])
             value = obj["value"]
+            enabled = bool(obj["enabled"])
             parent_id = int(obj["parent_id"]) if obj["parent_id"] is not None else None
-            return Data(value=value, parent_id=parent_id, id_=id_)
+            return Data(value=value, parent_id=parent_id, id_=id_, enabled=enabled)
 
         return obj

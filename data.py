@@ -8,7 +8,7 @@ class Data(object):
     """
     Class for store data.
     """
-    def __init__(self, value, parent_id=None, id_=None):
+    def __init__(self, value, parent_id=None, id_=None, enabled=True):
         """
         Data constructor.
         In minimum case can be set only with value.
@@ -18,12 +18,23 @@ class Data(object):
         :param parent_id: parent id as int.
         """
         self._parent_id = parent_id
-        self._enabled = True
+        self._enabled = enabled
         self._value = value
         if id_ is None:
             self._id = uuid.uuid4().int
         else:
             self._id = id_
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, Data):
+            return self._id == other.get_id()
+        return NotImplemented
+
+    def __ne__(self, other) -> bool:
+        result = self.__eq__(other)
+        if result is NotImplemented:
+            return result
+        return not result
 
     def __repr__(self) -> str:
         """
@@ -38,7 +49,15 @@ class Data(object):
                            self._parent_id,
                            self._value)
 
-    def get_value(self):
+    def set_value(self, value) -> None:
+        """
+        Setting new value of data
+        :param value: new value
+        :return: None
+        """
+        self._value = value
+
+    def get_value(self) -> str:
         """
         Getter for receiving value.
         :return: value
@@ -58,6 +77,14 @@ class Data(object):
         :return: int uuid of the node
         """
         return self._id
+
+    def set_enabled(self, value) -> None:
+        """
+        Enables/Disables data
+        :param value: flag value
+        :return: None
+        """
+        self._enabled = value
 
     def is_enabled(self) -> bool:
         """

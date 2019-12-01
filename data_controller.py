@@ -33,15 +33,20 @@ class DataNodeController(object):
         :param remove_from_list: flag for removing from list ex-orphans
         :return: None
         """
-        for node in nodes_list:
-            if not node.is_orphan_node():
-                continue
-
-            for checked_node in nodes_list:
-                if self._search_parent(checked_node, node):
-                    if remove_from_list:
-                        nodes_list.remove(node)
-                    break
+        try:
+            i = 0
+            while i < len(nodes_list):
+                node = nodes_list[i]
+                if node.is_orphan_node():
+                    for checked_node in nodes_list:
+                        if self._search_parent(checked_node, node):
+                            if remove_from_list:
+                                nodes_list.remove(node)
+                                i -= 1
+                            break
+                i += 1
+        except Exception as e:
+            print("exception {} raised".format(e))
 
     def _search_parent(self, checked_node: DataNode, orphan_node: DataNode) -> bool:
         """
@@ -55,6 +60,8 @@ class DataNodeController(object):
 
         if checked_node.get_id() == orphan_node.get_parent_id():
             checked_node.append_child(orphan_node)
+            if not checked_node.is_enabled():
+                orphan_node.set_enabled(False)
             return True
 
         for child in checked_node.get_children():
@@ -62,13 +69,24 @@ class DataNodeController(object):
                 return True
         return False
 
-    def to_data_list(self, node: DataNode) -> List[Data]:
+    def node_to_data_list(self, node: DataNode) -> List[Data]:
         """
         Extracts data from DataNodes into list
         :param node: DataNode for extracting
         :return: list of Data
         """
         return self._to_data_list(node, [])
+
+    def node_list_to_data_list(self, nodes: List[DataNode]) -> List[Data]:
+        """
+        Extracts data from DataNodes list into list
+        :param nodes: DataNode list for extracting
+        :return: list of Data
+        """
+        result = []
+        for node in nodes:
+            result.extend(self.node_to_data_list(node))
+        return result
 
     def _to_data_list(self, node: DataNode, list_: List[Data]) -> List[Data]:
         """
@@ -83,3 +101,65 @@ class DataNodeController(object):
             self._to_data_list(child, list_)
         list_.extend(child_items)
         return list_
+
+    def node_list_has_data(self, node_list: List[DataNode], data: Data) -> bool:
+        """
+        Checks if any node in list has selected data
+        :param node_list: list of DataNodes for checking
+        :param data: searched data
+        :return: True if Node with selected data present in list
+        """
+        for node in node_list:
+            if node.has(data):
+                return True
+        return False
+
+    def update_node_list_with_data_list(self, nodes_list, data_list) -> None:
+        """
+        Method for applying update for used nodes.
+        Applies value changing, delete effect. Also new elements will be appended to the tree.
+        :param nodes_list: list of nodes for updating
+        :param data_list: update data
+        :return: None
+        """
+        # reserving list for removing from it updated elements
+        process_list = data_list[:]
+        for node in nodes_list:
+            self._update_node_with_data_list(node, process_list)
+
+        nodes_list.extend([DataNode(instance=a) for a in process_list])
+        self.update_node_hierarchy(nodes_list, remove_from_list=True)
+
+    def _update_node_with_data_list(self, node: DataNode, data_list: List[Data]) -> None:
+        """
+        Private method providing existed nodes update with passed list of data
+        :param node: node for update
+        :param data_list: list of update data
+        :return: None
+        """
+        i = 0
+        while i < len(data_list):
+            data = data_list[i]
+            if self._update_node_with_data(node, data):
+                data_list.remove(data)
+            else:
+                i += 1
+
+    def _update_node_with_data(self, node: DataNode, data: Data) -> bool:
+        """
+        Private method for attempting update node with data.
+        Returns True if attempt was successfull.
+        :param node: node for update
+        :param data: update data
+        :return: True if node successfully update
+        """
+        if node == data:
+            node.set_value(data.get_value())
+            if not data.is_enabled():
+                node.set_enabled(False)
+            return True
+        else:
+            for child in node.get_children():
+                if self._update_node_with_data(child, data):
+                    return True
+        return False

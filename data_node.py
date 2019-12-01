@@ -54,6 +54,19 @@ class DataNode(object):
 
         self._children = []
 
+    def __eq__(self, other):
+        if isinstance(other, DataNode):
+            return self._data == other.get_instance()
+        if isinstance(other, Data):
+            return self._data == other
+        return NotImplemented
+
+    def __ne__(self, other):
+        result = self.__eq__(other)
+        if result is NotImplemented:
+            return result
+        return not result
+
     def __repr__(self) -> str:
         """
         Debug-format data representation
@@ -71,6 +84,22 @@ class DataNode(object):
                            self.get_value(),
                            ",\n".join([repr(i) for i in self._children]))
 
+    def has(self, data) -> bool:
+        """
+        Checks if node contains entered data
+        :param data: Data or DataNode element
+        :return: True if node or it children has that data
+        """
+        if self == data:
+            return True
+
+        for child in self._children:
+            has_in_child = child.has(data)
+            if has_in_child:
+                return True
+
+        return False
+
     def get_children(self):
         """
         Getter for element's children list
@@ -85,7 +114,15 @@ class DataNode(object):
         """
         return self._data
 
-    def get_value(self):
+    def set_value(self, value) -> None:
+        """
+        Setting new value for data instance
+        :param value: new value
+        :return: None
+        """
+        self._data.set_value(value)
+
+    def get_value(self) -> str:
         """
         Getter for receiving value of the Data.
         :return: value of the node
@@ -119,6 +156,16 @@ class DataNode(object):
         :return: int uuid of the node
         """
         return self._data.get_id()
+
+    def set_enabled(self, value) -> None:
+        """
+        Enables/Disables DataNode. Also applies to children
+        :param value: enable flag
+        :return: None
+        """
+        self._data.set_enabled(value)
+        for child in self.get_children():
+            child.set_enabled(value)
 
     def is_enabled(self) -> bool:
         return self._data.is_enabled()
