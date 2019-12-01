@@ -66,21 +66,6 @@ class TestDataNodeInit(unittest.TestCase):
             self.assertTrue(False,
                             "TestInit: exception was raised")
 
-    def test_with_incorrect_parent_instance(self):
-        try:
-            grand_node_value = "Grand"
-            grand_node = DataNode(grand_node_value)
-
-            node1_value = "TestNode1"
-            node2_value = "TestNode2"
-            node1 = DataNode(node1_value, parent=grand_node)
-            node2 = DataNode(node2_value, parent=grand_node_value)
-
-            self.assertTrue(False,
-                            "TestInit: Exception must be raised")
-        except DataNodeInstanceException:
-            pass
-
 
 class TestDataNodeEquals(unittest.TestCase):
     """
