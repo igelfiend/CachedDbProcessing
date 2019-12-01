@@ -6,3 +6,5 @@ All data process in single application, network not used.
 Requirements:
   * python 3;
   * PyQt5 (pip3 install PyQt5).
+  
+For start execute main.py file.
