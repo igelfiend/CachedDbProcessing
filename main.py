@@ -205,22 +205,36 @@ class MainWindow(QMainWindow):
         Converts cache data then sends it to the database.
         :return: None
         """
-        data_list = self._data_controller.node_list_to_data_list(self.data_cache)
-        json_data = self._data_encoder.encode(data_list)
-        self.send_cache_changes(json_data)
+        json_data_cache = self._data_controller.node_list_to_json(self._data_encoder, self.data_cache)
+        self.send_cache_changes(json_data_cache)
 
     def send_cache_changes(self, json_data: str) -> None:
         """
         Converts received json data to Data list,
-        then updates Database with that list and updates Trees
+        then updates Database with that list. Tree updated.
+        Also cache sync provided.
         :param json_data: update for database in json format
         :return: None
         """
         data_list = self._data_decoder.decode(json_data)
         self._data_controller.update_node_list_with_data_list(self.data_db, data_list)
         self.sync_tree_db()
-        # self.data_cache = []
-        # self.sync_tree_cache()
+
+        # There are possible updates which touch any cache data, so updating cache data
+        json_data_db = self._data_controller.node_list_to_json(self._data_encoder, self.data_db)
+        self.update_cache(json_data_db)
+
+    def update_cache(self, json_data: str) -> None:
+        """
+        Updates cache data with json from Database data.
+        :param json_data: jsonned Data from Database
+        :return: None
+        """
+        data_list = self._data_decoder.decode(json_data)
+        self._data_controller.update_node_list_with_data_list(nodes_list=self.data_cache,
+                                                              data_list=data_list,
+                                                              append_new=False)
+        self.sync_tree_cache()
 
     def create_model_from_nodes(self, nodes: List[DataNode]) -> QStandardItemModel:
         """

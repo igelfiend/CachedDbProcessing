@@ -19,7 +19,7 @@ class DataEncoder(json.JSONEncoder):
                 "parent_id": value.get_parent_id()
             }
         else:
-            super().default(self. value)
+            return super().default(self, value)
 
 
 class DataDecoder(json.JSONDecoder):

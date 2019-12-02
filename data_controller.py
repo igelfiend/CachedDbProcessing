@@ -3,6 +3,7 @@
 
 from data import Data
 from data_node import DataNode
+from data_serializer import DataEncoder, DataDecoder
 from typing import List
 
 
@@ -114,12 +115,14 @@ class DataNodeController(object):
                 return True
         return False
 
-    def update_node_list_with_data_list(self, nodes_list, data_list) -> None:
+    def update_node_list_with_data_list(self, nodes_list, data_list, append_new=True) -> None:
         """
         Method for applying update for used nodes.
         Applies value changing, delete effect. Also new elements will be appended to the tree.
         :param nodes_list: list of nodes for updating
         :param data_list: update data
+        :param append_new: enabled by default, appends new nodes from data_list.
+                           Disable when just update required.
         :return: None
         """
         # reserving list for removing from it updated elements
@@ -127,8 +130,9 @@ class DataNodeController(object):
         for node in nodes_list:
             self._update_node_with_data_list(node, process_list)
 
-        nodes_list.extend([DataNode(instance=a) for a in process_list])
-        self.update_node_hierarchy(nodes_list, remove_from_list=True)
+        if append_new:
+            nodes_list.extend([DataNode(instance=a) for a in process_list])
+            self.update_node_hierarchy(nodes_list, remove_from_list=True)
 
     def _update_node_with_data_list(self, node: DataNode, data_list: List[Data]) -> None:
         """
@@ -163,3 +167,7 @@ class DataNodeController(object):
                 if self._update_node_with_data(child, data):
                     return True
         return False
+
+    def node_list_to_json(self, encoder: DataEncoder, data_nodes: List[DataNode]):
+        data_list = self.node_list_to_data_list(data_nodes)
+        return encoder.encode(data_list)
