@@ -218,9 +218,9 @@ class MainWindow(QMainWindow):
         """
         data_list = self._data_decoder.decode(json_data)
         self._data_controller.update_node_list_with_data_list(self.data_db, data_list)
-        self.data_cache = []
         self.sync_tree_db()
-        self.sync_tree_cache()
+        # self.data_cache = []
+        # self.sync_tree_cache()
 
     def create_model_from_nodes(self, nodes: List[DataNode]) -> QStandardItemModel:
         """
